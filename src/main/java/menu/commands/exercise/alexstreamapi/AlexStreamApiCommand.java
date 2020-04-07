@@ -39,10 +39,10 @@ public class AlexStreamApiCommand implements Command {
             AlexFilterService.filterBySameNames();
             return this;
         } else if (choice == AlexStreamApiExerciseOption.ONLY_NAMES) {
-            AlexFilterService.printNames();
+            AlexFilterService.printElementsFromArray(AlexFilterService.getNames());
             return this;
         } else if (choice == AlexStreamApiExerciseOption.ONLY_NAMES_LAST_NAMES) {
-            AlexFilterService.printNamesAndLastNames();
+            AlexFilterService.printElementsFromArray(AlexFilterService.getNameAndLastName());
             return this;
         } else if (choice == AlexStreamApiExerciseOption.MATCH_AGES_ARRAY) {
             AlexFilterService.filterBySameAge();
@@ -56,10 +56,12 @@ public class AlexStreamApiCommand implements Command {
         } else if (choice == AlexStreamApiExerciseOption.PERCENT_OF_MEN_UNDER_25) {
             AlexFilterService.menUnder25Percent();
             return this;
-        } else if(choice == AlexStreamApiExerciseOption.PHONE_NUMBER_MATCH) {
+        } else if (choice == AlexStreamApiExerciseOption.PHONE_NUMBER_MATCH) {
             AlexFilterService.filterBySameNumber();
             return this;
+        } else {
+            System.out.println("Unexpected command");
+            return ExitCommand.getInstance();
         }
-        return ExitCommand.getInstance();
     }
 }
