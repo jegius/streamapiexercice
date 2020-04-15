@@ -5,21 +5,19 @@ import models.Gender;
 import models.Person;
 import repositories.PersonRepository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AlexFilterService {
     private static final String phoneCode = "(\\(\\d{3}\\)) (.+)";
 
-    private static final int ageFilterLowValue = 23;
-    private static final int ageFilterHighValue = 30;
-    private static final int menAndWomenAgeFilterMaleValue = 30;
-    private static final int menAndWomenAgeFilterFemaleValue = 25;
-    private static final int amountOfSingleValue = 1;
-    private static final String searchEmailElement = "_";
-    private static final int menAgePercent = 25;
+    private static final int AGE_FILTER_LOW_VALUE = 23;
+    private static final int AGE_FILTER_HIGH_VALUE = 30;
+    private static final int MEN_AND_WOMEN_AGE_FILTER_MALE_VALUE = 30;
+    private static final int MEN_AND_WOMEN_AGE_FILTER_FEMALE_VALUE = 25;
+    private static final int AMOUNT_OF_SINGLE_VALUE = 1;
+    private static final String SEARCH_EMAIL_ELEMENT = "_";
+    private static final int MEN_AGE_PERCENT = 25;
     private static List<Person> people = PersonRepository
             .getInstance()
             .get();
@@ -37,7 +35,7 @@ public class AlexFilterService {
 
     public static void filterByAge() {
         people.stream()
-                .filter(person -> person.getAge() > ageFilterLowValue && person.getAge() < ageFilterHighValue)
+                .filter(person -> person.getAge() > AGE_FILTER_LOW_VALUE && person.getAge() < AGE_FILTER_HIGH_VALUE)
                 .forEach(PersonCommandsUtils::printWebsites);
     }
 
@@ -45,56 +43,38 @@ public class AlexFilterService {
         PersonFilter personFilter = person -> person
                 .getGender()
                 .equals(Gender.MALE) && person
-                .getAge() > menAndWomenAgeFilterMaleValue ||
+                .getAge() > MEN_AND_WOMEN_AGE_FILTER_MALE_VALUE ||
                 person
                         .getGender()
                         .equals(Gender.FEMALE) && person
-                        .getAge() < menAndWomenAgeFilterFemaleValue;
+                        .getAge() < MEN_AND_WOMEN_AGE_FILTER_FEMALE_VALUE;
 
         people.stream()
                 .filter(personFilter::filter)
                 .forEach(PersonCommandsUtils::printWebsites);
     }
 
+    static PrintFromMap<Person, String> printFromMap = map -> map.entrySet()
+            .stream()
+            .filter(array -> array.getValue().size() > AMOUNT_OF_SINGLE_VALUE)
+            .forEach(array -> array.getValue()
+                    .forEach(PersonCommandsUtils::printWebsites));
+
+
     public static void filterBySameNames() {
-        HashMap<String, List<Person>> peopleNameMap = new HashMap<>();
-
-        people.forEach(person -> {
-            if (peopleNameMap.containsKey(person.getFirstName())) {
-                peopleNameMap.get(person.getFirstName()).add(person);
-            } else {
-                List<Person> arrayPerson = new ArrayList<>();
-                arrayPerson.add(person);
-                peopleNameMap.put(person.getFirstName(), arrayPerson);
-            }
-        });
-
-        peopleNameMap
-                .entrySet()
-                .stream()
-                .filter(element -> element.getValue().size() > amountOfSingleValue)
-                .forEach(b -> b.getValue()
-                        .forEach(PersonCommandsUtils::printWebsites));
+        SameElementKey sameElementKey = Person::getFirstName;
+        printFromMap
+                .print(sameElementMap
+                        .completeMap(people, sameElementKey));
     }
 
     public static void filterBySameAge() {
-        HashMap<Long, List<Person>> peopleAgeMap = new HashMap<>();
-        people.forEach(person -> {
-            if (peopleAgeMap.containsKey(person.getAge())) {
-                peopleAgeMap.get(person.getAge()).add(person);
-            } else {
-                List<Person> arrayPerson = new ArrayList<>();
-                arrayPerson.add(person);
-                peopleAgeMap.put(person.getAge(), arrayPerson);
-            }
-        });
-
-        peopleAgeMap
-                .entrySet()
-                .stream()
-                .filter(arrayOfPeople -> arrayOfPeople.getValue().size() > amountOfSingleValue)
-                .forEach(arrayOfPeople -> arrayOfPeople.getValue()
-                        .forEach(PersonCommandsUtils::printWebsites));
+        SameElementKey sameElementKey = person -> person
+                .getAge()
+                .toString();
+        printFromMap
+                .print(sameElementMap
+                        .completeMap(people, sameElementKey));
     }
 
     public static List<String> getNames() {
@@ -116,7 +96,7 @@ public class AlexFilterService {
 
     public static void findEmails() {
         people.stream().filter(person -> person.getEmail()
-                .contains(searchEmailElement))
+                .contains(SEARCH_EMAIL_ELEMENT))
                 .forEach(person -> System.out.println(person.getEmail()));
     }
 
@@ -138,29 +118,32 @@ public class AlexFilterService {
                 .count();
         long manUnder25 = people
                 .stream()
-                .filter(person -> person.getGender().equals(Gender.MALE) && person.getAge() < menAgePercent)
+                .filter(person -> person.getGender().equals(Gender.MALE) && person.getAge() < MEN_AGE_PERCENT)
                 .count();
         System.out.println((manUnder25 * 100) / manAmount + "%");
     }
 
-    public static void filterBySameNumber() {
-        HashMap<String, List<Person>> numberMap = new HashMap<>();
+    static SameElementMap sameElementMap = (people, sameElementMap) -> {
+        HashMap<String, List<Person>> peopleMap = new HashMap<>();
         people.forEach(person -> {
-            String phoneNumber = person.getPhone().replaceAll(phoneCode, "$1");
-            if (numberMap.containsKey(phoneNumber)) {
-                numberMap.get(phoneNumber).add(person);
-            } else {
-                List<Person> peopleArray = new ArrayList<>();
-                peopleArray.add(person);
-                numberMap.put(phoneNumber, peopleArray);
-            }
-        });
+                    String key = sameElementMap.findKey(person);
+                    if (peopleMap.containsKey(key)) {
+                        peopleMap.get(key).add(person);
+                    } else {
+                        peopleMap.put(key, new ArrayList<>(Collections.singletonList(person)));
+                    }
+                }
+        );
+        return peopleMap;
+    };
 
-        numberMap
-                .entrySet()
-                .stream()
-                .filter(peopleArray -> peopleArray.getValue().size() > amountOfSingleValue)
-                .forEach(peopleArray -> peopleArray.getValue()
-                        .forEach(PersonCommandsUtils::printWebsites));
+    public static void filterBySameNumber() {
+        SameElementKey sameElementFilter = person ->
+                person
+                        .getPhone()
+                        .replaceAll(phoneCode, "$1");
+        printFromMap
+                .print(sameElementMap
+                        .completeMap(people, sameElementFilter));
     }
 }

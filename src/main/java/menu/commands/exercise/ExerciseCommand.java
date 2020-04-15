@@ -27,7 +27,9 @@ public class ExerciseCommand implements Command {
             return MainMenuCommand.getInstance();
         } else if (choice == ExerciseOption.ALEX) {
             return AlexStreamApiCommand.getInstance();
+        } else {
+            System.out.println("unexpected command");
+            return MainMenuCommand.getInstance();
         }
-        return MainMenuCommand.getInstance();
     }
 }

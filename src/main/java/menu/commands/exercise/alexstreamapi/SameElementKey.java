@@ -3,6 +3,6 @@ package menu.commands.exercise.alexstreamapi;
 import models.Person;
 
 @FunctionalInterface
-public interface PersonFilter {
-    boolean filter(Person person);
+public interface SameElementKey {
+    String findKey(Person person);
 }
