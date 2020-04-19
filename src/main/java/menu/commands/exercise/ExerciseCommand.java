@@ -29,7 +29,7 @@ public class ExerciseCommand implements Command {
             return AlexStreamApiCommand.getInstance();
         } else {
             System.out.println("unexpected command");
-            return MainMenuCommand.getInstance();
+            return this;
         }
     }
 }

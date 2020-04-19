@@ -9,7 +9,7 @@ import utls.MenuUtils;
 public class AlexStreamApiCommand implements Command {
 
     private static AlexStreamApiCommand instance;
-
+    private static final int  AGE_MAN = 25;
     public static synchronized AlexStreamApiCommand getInstance() {
         if (instance == null) {
             instance = new AlexStreamApiCommand();
@@ -54,7 +54,7 @@ public class AlexStreamApiCommand implements Command {
             AlexFilterService.genderPercent();
             return this;
         } else if (choice == AlexStreamApiExerciseOption.PERCENT_OF_MEN_UNDER_25) {
-            AlexFilterService.menUnder25Percent();
+            AlexFilterService.menOfAgePercent(AGE_MAN);
             return this;
         } else if (choice == AlexStreamApiExerciseOption.PHONE_NUMBER_MATCH) {
             AlexFilterService.filterBySameNumber();
