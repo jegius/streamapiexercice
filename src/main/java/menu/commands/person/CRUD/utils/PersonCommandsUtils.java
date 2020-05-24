@@ -93,11 +93,14 @@ public class PersonCommandsUtils {
         return PersonCommand.getInstance();
     }
 
-    private static void printWebsites(Person person) {
+    public static void printWebsites(Person person) {
         System.out.println(
                 person.getId() +
                         " |: " + person.getLastName() +
-                        " - " + person.getFirstName()
+                        " - " + person.getFirstName() +
+                        ": " + person.getAge() +
+                        " - " + person.getPhone() +
+                        " - " + person.getEmail()
         );
     }
 
